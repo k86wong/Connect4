@@ -5,9 +5,9 @@ import numpy as np
 
 def play(player_turn, row_number, board_state):
     #add the token to the board
-    add_token(player_turn, row_number, board_state)
+    board_state = add_token(player_turn, row_number, board_state)
     #check if anyone has won
-    check_win(board_state)
+    win = check_win(board_state)
 
     return board_state, win
 
