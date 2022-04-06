@@ -1,8 +1,6 @@
 #Memo
 #Player 1 is 1's. Player 2 is 2's. Empty slots are 0's.
 
-import numpy as np
-
 def play(player_turn, row_number, board_state):
     #add the token to the board
     board_state = add_token(player_turn, row_number, board_state)
@@ -11,18 +9,17 @@ def play(player_turn, row_number, board_state):
 
     return board_state, win
 
-def add_token(player_turn, row_number, board_state):
+def add_token(player_turn, col_number, board_state):
     if player_turn == 1:
-        for i in range(5:-1:-1):
-            if board_state[i][row_number] == 0:
-                board_state[i][row_number] == 1
-                break
+        for i in range(5,-1,-1):
+            if board_state[i][col_number] == 0:
+                board_state[i][col_number] = 1
+                return board_state
     else:
-        for i in range(5:-1:-1):
-            if board_state[i][row_number] == 0:
-                board_state[i][row_number] == 2
-                break
-    return board_state
+        for i in range(5,-1,-1):
+            if board_state[i][col_number] == 0:
+                board_state[i][col_number] = 2
+                return board_state
 
 def check_win(board_state):
     #return 0 if no one has won, return 1 if player 1 has won, return 2 if player 2 has won.
@@ -55,11 +52,11 @@ def check_win(board_state):
         ones_inarow = 0
         twos_inarow = 0    
         for i in range(len(array)):
-            if array(i) == 1:
+            if array[i] == 1:
                 ones_inarow = ones_inarow + 1
                 if ones_inarow == 4:
                     return 1
-            elif array(i) == 2:
+            elif array[i] == 2:
                 twos_inarow = twos_inarow + 1
                 if twos_inarow == 4:
                     return 2
@@ -91,3 +88,5 @@ def check_win(board_state):
                     return 2
             except IndexError:
                 break
+    #if no win conditions are found, return 0
+    return 0
