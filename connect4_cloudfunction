@@ -1,0 +1,147 @@
+# def hello_world(request):
+#     """Responds to any HTTP request.
+#     Args:
+#         request (flask.Request): HTTP request object.
+#     Returns:
+#         The response text or any set of values that can be turned into a
+#         Response object using
+#         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
+#     """
+#     request_json = request.get_json()
+#     if request.args and 'message' in request.args:
+#         return request.args.get('message')
+#     elif request_json and 'message' in request_json:
+#         return request_json['message']
+#     else:
+#         return f'Hello World!'
+
+#---------
+
+# def connect4(request):
+#     request_json = request.get_json()
+#     if request_json and ('board_state' in request_json) and ('col_number' in request_json) and ('player_turn' in request_json):
+#         board_state = request_json['board_state']
+#         col_number = test_func(request_json['col_number'])
+#         player_turn = request_json['player_turn']
+#         output = {"board_state": board_state, "col_number": col_number, "player_turn": player_turn}
+#         return output
+
+#     else: 
+#         return '3'
+
+# def test_func(col_number):
+#     return str(int(col_number) + 1)
+
+#-----------
+
+def connect4(request):
+    request_json = request.get_json()
+    if request_json and ('board_state' in request_json) and ('col_number' in request_json) and ('player_turn' in request_json):
+        new_board_state = add_token(request_json['player_turn'], request_json['col_number'], request_json['board_state'])
+        new_player_turn = change_turn(request_json['player_turn'])
+        win = check_win(new_board_state)
+        output = {"board_state": new_board_state, "win": win, "player_turn": new_player_turn}   
+        return output
+    elif len(request_json) == 0:
+        output = {"board_state": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "player_turn": 1, "win": 0}
+        return output
+    else: 
+        return '3'
+
+
+def add_token(player_turn, col_number, board_state):
+    if player_turn == 1:
+        for i in range(5,-1,-1):
+            if board_state[i][col_number] == 0:
+                board_state[i][col_number] = 1
+                return board_state
+        #raise TypeError
+    else:
+        for i in range(5,-1,-1):
+            if board_state[i][col_number] == 0:
+                board_state[i][col_number] = 2
+                return board_state
+        #raise TypeError
+
+def change_turn(player_turn):
+    if player_turn == 1:
+        return 2
+    elif player_turn == 2:
+        return 1
+
+def check_win(board_state):
+    #return 0 if no one has won, return 1 if player 1 has won, return 2 if player 2 has won.
+    # check vertical win condition
+    ones_inarow = 0
+    twos_inarow = 0
+    board_width = 7
+    board_height = 6
+
+    for i in range(board_width):
+        ones_inarow = 0
+        twos_inarow = 0
+        for j in range(board_height):
+            if board_state[j][i] == 1:
+                ones_inarow = ones_inarow + 1
+                twos_inarow = 0
+                if ones_inarow == 4:
+                    return 1
+            elif board_state[j][i] == 2:
+                twos_inarow = twos_inarow + 1
+                ones_inarow = 0
+                if twos_inarow == 4:
+                    return 2
+            elif board_state[j][i] == 0:
+                ones_inarow = 0
+                twos_inarow = 0
+
+    # check horizontal win condition
+    ones_inarow = 0
+    twos_inarow = 0
+    for array in board_state:
+        ones_inarow = 0
+        twos_inarow = 0    
+        for i in range(len(array)):
+            if array[i] == 1:
+                ones_inarow = ones_inarow + 1
+                twos_inarow = 0
+                if ones_inarow == 4:
+                    return 1
+            elif array[i] == 2:
+                twos_inarow = twos_inarow + 1
+                ones_inarow = 0
+                if twos_inarow == 4:
+                    return 2
+            else:
+                ones_inarow = 0
+                twos_inarow = 0
+    # check diagonal win condition "\". Use try - except to get through indexing errors. 
+    ones_inarow = 0
+    twos_inarow = 0
+    for i in range(board_height):
+        for j in range(board_width):
+            try:
+                if (board_state[i][j] == 1) and (board_state[i+1][j+1]) == 1 and (board_state[i+2][j+2] == 1) and (board_state[i+3][j+3] == 1):
+                    return 1
+                if (board_state[i][j] == 2) and (board_state[i+1][j+1] == 2) and (board_state[i+2][j+2] == 2) and (board_state[i+3][j+3] == 2):
+                    return 2
+            except IndexError:
+                break
+
+    # check diagonal win condition "/". Use try - except to get through indexing errors. 
+    ones_inarow = 0
+    twos_inarow = 0
+    for i in range(board_height):
+        for j in range(board_width):
+            try:
+                if (board_state[i][j] == 1) and (board_state[i+1][j-1]) == 1 and (board_state[i+2][j-2] == 1) and (board_state[i+3][j-3] == 1):
+                    return 1
+                if (board_state[i][j] == 2) and (board_state[i+1][j-1] == 2) and (board_state[i+2][j-2] == 2) and (board_state[i+3][j-3] == 2):
+                    return 2
+            except IndexError:
+                break
+    #if no win conditions are found, return 0
+    return 0
+
+if __name__ == '__main__':
+    connect4()
